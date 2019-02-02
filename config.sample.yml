@@ -1,0 +1,8 @@
+LOCK_DIR: '/path/to/lock-dir'
+BUCKET: 'my-deploy-bucket-name'
+EMAIL_NOTIFY: 'dev-email@email.com'
+EMAIL_FROM: 'my-email@email.com'
+OWNER: 'www-data'
+NICKNAME: 'promo-site'
+DOMAIN: 'promo.example.com'
+CMD:
