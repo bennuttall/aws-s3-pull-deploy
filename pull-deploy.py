@@ -64,7 +64,7 @@ def create_cache_file_php(latest_timestamp, deploy_directory, cfg):
     log('Creating PHP cache file: '+php_cache_file_path);
     with open(php_cache_file_path, 'w') as php_cache_file:
         php_cache_file.write(php_cache_file_content)
-    shutil.chown(php_cache_file_path, user = cfg.OWNER, group = cfg.OWNER)
+    shutil.chown(php_cache_file_path, user = cfg['OWNER'], group = cfg['OWNER'])
 
 
 def clear_old_dirs(domain_dir, deploy_datetime):
@@ -87,7 +87,7 @@ def create_temp_directory(deploy_directory, cfg):
     temp_directory=deploy_directory+'/temp'
     log('Creating temp directory: '+temp_directory)
     pathlib.Path(temp_directory+'/temp').mkdir(parents = True, exist_ok = True)
-    shutil.chown(temp_directory, user = cfg.OWNER, group = cfg.OWNER)
+    shutil.chown(temp_directory, user = cfg['OWNER'], group = cfg['OWNER'])
 
 
 def create_symlink(domain_dir, deploy_directory, cfg):
@@ -95,24 +95,24 @@ def create_symlink(domain_dir, deploy_directory, cfg):
     symlink_temp = symlink+'-tmp'
     log("Creating symlink at "+symlink+' with temporary name '+symlink_temp)
     os.symlink(deploy_directory, symlink_temp)
-    shutil.chown(symlink_temp, user = cfg.OWNER, group = cfg.OWNER)
+    shutil.chown(symlink_temp, user = cfg['OWNER'], group = cfg['OWNER'])
     os.rename(symlink_temp, symlink)
 
 
 def create_deploy_dir(deploy_directory, cfg):
     log("Will deploy latest to "+deploy_directory)
     pathlib.Path(deploy_directory).mkdir(parents = True, exist_ok = True)
-    shutil.chown(deploy_directory, user = cfg.OWNER, group = cfg.OWNER)
+    shutil.chown(deploy_directory, user = cfg['OWNER'], group = cfg['OWNER'])
 
 
 def call_aws(deploy_datetime, deploy_directory, cfg):
     log('Calling aws')
-    subprocess.run(['sudo', '-u', cfg.OWNER, 'aws', 's3', 'sync', 's3://'+cfg.BUCKET+'/'+cfg.NICKNAME+'/'+deploy_datetime+'/', deploy_directory+'/', '--only-show-errors'], check = True)
+    subprocess.run(['sudo', '-u', cfg['OWNER'], 'aws', 's3', 'sync', 's3://'+cfg['BUCKET']+'/'+cfg['NICKNAME']+'/'+deploy_datetime+'/', deploy_directory+'/', '--only-show-errors'], check = True)
 
 
 def get_latest_deploy_info(cfg):
     s3 = boto3.resource('s3')
-    latest_deploy_object = s3.Object(cfg.BUCKET, cfg.NICKNAME+'/latest-deploy')
+    latest_deploy_object = s3.Object(cfg['BUCKET'], cfg['NICKNAME']+'/latest-deploy')
 
     return latest_deploy_object.get()['Body'].read().decode('utf-8')
 
@@ -123,16 +123,16 @@ def make_lock(lock_file):
 
 
 def write_timestamp(cfg):
-    with open(LAST_TIMESTAMP_PATH+'-'+cfg.NICKNAME, 'w') as last_timestamp_file:
+    with open(LAST_TIMESTAMP_PATH+'-'+cfg['NICKNAME'], 'w') as last_timestamp_file:
         last_timestamp_file.write(str(latest_timestamp))
 
 
 def run(instance_id, cfg):
     # Give good info for our logs
-    log('Running for nickname: '+cfg.NICKNAME+' and domain: '+cfg.DOMAIN)
+    log('Running for nickname: '+cfg['NICKNAME']+' and domain: '+cfg['DOMAIN'])
 
-    lock_dir = cfg.LOCK_DIR+'/'+cfg.NICKNAME
-    lock_file = lock_dir+'/lock-'+cfg.NICKNAME+'-'+instance_id
+    lock_dir = cfg['LOCK_DIR']+'/'+cfg['NICKNAME']
+    lock_file = lock_dir+'/lock-'+cfg['NICKNAME']+'-'+instance_id
     # If this is locked a deploy is in progress; we exit this with a status of 1
     # to indicate nothing has happened but nothing has gone 'wrong' either
     if os.path.isfile(lock_file) :
@@ -154,11 +154,11 @@ def run(instance_id, cfg):
     # This will be the most common result if the system is run on a regular
     # schedule - no new deploy has been made so we're done. We return 1 to indicate
     # a succesful run but specify that a deploy did not happen
-    if not timestamp_is_newer(latest_timestamp, cfg.NICKNAME):
+    if not timestamp_is_newer(latest_timestamp, cfg['NICKNAME']):
         os.remove(lock_file)
         return 1
 
-    domain_dir = WEB_DIR+'/'+cfg.DOMAIN
+    domain_dir = WEB_DIR+'/'+cfg['DOMAIN']
     deploy_directory = domain_dir+'/'+deploy_datetime
 
     create_deploy_dir(deploy_director, cfg)
@@ -229,9 +229,9 @@ def run(instance_id, cfg):
     # This can be used for various purposes, suggestions would include
     # restarting services which depend on the application version (e.g. PHP FPM)
     # or loading crontab files
-    if cfg.CMD:
-        log('Running command: '+cfg.CMD)
-        subprocess.run(cfg.CMD, check = True, shell = True)
+    if cfg['CMD']:
+        log('Running command: '+cfg['CMD'])
+        subprocess.run(cfg['CMD'], check = True, shell = True)
 
     # This waits for any ongoing requests to complete before removing files
     # which may be in use and therefore get locked by the OS when deleting, or
@@ -248,8 +248,8 @@ def run(instance_id, cfg):
     return 2
 
 
-def pull():
-    cfg = get_config()
+def pull(cfg_file):
+    cfg = get_config(cfg_file)
 
     response = requests.get('http://169.254.169.254/latest/meta-data/instance-id')
     instance_id = response.text
@@ -262,10 +262,10 @@ def pull():
         result = False
 
     if not result:
-        send_email_of_log('Deploy ERROR for "'+cfg.NICKNAME+'" to "'+cfg.DOMAIN+'": instance '+instance_id, cfg.EMAIL_NOTIFY, cfg.EMAIL_FROM)
+        send_email_of_log('Deploy ERROR for "'+cfg['NICKNAME']+'" to "'+cfg['DOMAIN']+'": instance '+instance_id, cfg['EMAIL_NOTIFY'], cfg['EMAIL_FROM'])
 
     if result==2:
-        send_email_of_log('Deploy COMPLETE for "'+cfg.NICKNAME+'" to "'+cfg.DOMAIN+'": instance '+instance_id, cfg.EMAIL_NOTIFY, cfg.EMAIL_FROM)
+        send_email_of_log('Deploy COMPLETE for "'+cfg['NICKNAME']+'" to "'+cfg['DOMAIN']+'": instance '+instance_id, cfg['EMAIL_NOTIFY'], cfg['EMAIL_FROM'])
 
 
 def get_config(cfg_file):
@@ -301,7 +301,7 @@ def get_config(cfg_file):
         cfg_errors.append("The 'OWNER' config item must be set to the name of the user/group to own created files")
 
     if 'CMD' not in cfg.keys():
-            cfg_errors.append("The 'CMD' config item must be set to either an empty string or a valid shell command to run after deployment")
+        cfg_errors.append("The 'CMD' config item must be set to either an empty string or a valid shell command to run after deployment")
 
     if (cfg_errors):
         raise ReferenceError("The config file at '{}' had errors: \n".format(cfg_file)+"\n".join(cfg_errors))
