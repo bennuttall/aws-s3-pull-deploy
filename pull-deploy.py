@@ -132,6 +132,8 @@ def run(instance_id, cfg):
     log('Running for nickname: '+cfg['NICKNAME']+' and domain: '+cfg['DOMAIN'])
 
     lock_dir = cfg['LOCK_DIR']+'/'+cfg['NICKNAME']
+    pathlib.Path(lock_dir).mkdir(parents = True, exist_ok = True)
+    
     lock_file = lock_dir+'/lock-'+cfg['NICKNAME']+'-'+instance_id
     # If this is locked a deploy is in progress; we exit this with a status of 1
     # to indicate nothing has happened but nothing has gone 'wrong' either
