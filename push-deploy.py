@@ -28,7 +28,7 @@ def deploy(deploy, cfg_file):
 
     latest_deploy=str(date_string)+"\n"+str(timestamp)+"\n"+str(file_count)
 
-    cmd='aws s3 sync '+deploy+'/ s3://'+cfg['BUCKET']+'/'+cfg['NICKNAME']+'/ --only-show-errors'
+    cmd='aws s3 sync '+deploy+'/ s3://'+cfg['BUCKET']+'/'+cfg['NICKNAME']+'/'+date_string+'/ --only-show-errors'
 
     log("Running the following shell command to sync files: '"+cmd+"'")
     subprocess.run(cmd, check = True, shell = True)
