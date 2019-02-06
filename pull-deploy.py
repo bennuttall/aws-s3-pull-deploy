@@ -42,7 +42,7 @@ def timestamp_is_newer(latest_timestamp, site):
     try:
         with open(last_timestamp_path_site, 'r+') as last_timestamp_file:
             last_timestamp = int(last_timestamp_file.read())
-    except FileNotFoundError as e:
+    except Exception as e:
         last_timestamp = 0
 
     log("Last timestamp is "+str(last_timestamp))
@@ -108,8 +108,10 @@ def create_deploy_dir(deploy_directory, cfg):
 
 
 def call_aws(deploy_datetime, deploy_directory, cfg):
-    log('Calling aws')
-    subprocess.run(['sudo', '-u', cfg['OWNER'], 'aws', 's3', 'sync', 's3://'+cfg['BUCKET']+'/'+cfg['NICKNAME']+'/'+deploy_datetime+'/', deploy_directory+'/', '--only-show-errors'], check = True)
+    s3_path = 's3://'+cfg['BUCKET']+'/'+cfg['NICKNAME']+'/'+deploy_datetime+'/'
+    deploy_directory += '/'
+    log('Calling aws with remote '+s3_path+' and local ', deploy_directory)
+    subprocess.run(['sudo', '-u', cfg['OWNER'], 'aws', 's3', 'sync', s3_path, deploy_directory, '--only-show-errors'], check = True)
 
 
 def get_latest_deploy_info(cfg):
@@ -124,7 +126,7 @@ def make_lock(lock_file):
     open(lock_file, "w+")
 
 
-def write_timestamp(cfg):
+def write_timestamp(latest_timestamp, cfg):
     with open(LAST_TIMESTAMP_PATH+'-'+cfg['NICKNAME'], 'w') as last_timestamp_file:
         last_timestamp_file.write(str(latest_timestamp))
 
@@ -171,9 +173,9 @@ def run(instance_id, cfg):
     # are - expect it to take a few minutes for a full framework application or similar
     call_aws(deploy_datetime, deploy_directory, cfg)
 
-    write_timestamp(cfg)
+    write_timestamp(latest_timestamp, cfg)
 
-    object_count = sum([len(files) for r, d, files in os.walk(deploy_directory+'/objects')])
+    object_count = sum([len(files) for r, d, files in os.walk(deploy_directory+'/')])
 
     log('Checking object count ('+str(object_count)+') matches expected ('+str(expected_object_count)+')')
 
