@@ -165,7 +165,7 @@ def run(instance_id, cfg):
     domain_dir = WEB_DIR+'/'+cfg['DOMAIN']
     deploy_directory = domain_dir+'/'+deploy_datetime
 
-    create_deploy_dir(deploy_director, cfg)
+    create_deploy_dir(deploy_directory, cfg)
 
     # This downloads all the files and will take longer depending how many there
     # are - expect it to take a few minutes for a full framework application or similar
@@ -283,12 +283,16 @@ def show(cfg_file):
     print(cfg)
 
 def main():
+    default_cfg_dir = os.path.dirname(__file__)
+    if (default_cfg_dir):
+        default_cfg_dir += '/'
+
     parser = argparse.ArgumentParser(description='Pull new releases from an S3 bucket')
     parser.add_argument('--show', dest='action', action='store_const', const='show',
                        help='Prints the config')
     parser.add_argument('--pull', dest='action', action='store_const', const='pull',
                        help='Runs a pull deployment')
-    parser.add_argument('--config', dest='cfg_file', action='store', default=os.path.dirname(__file__)+'/config.yml',
+    parser.add_argument('--config', dest='cfg_file', action='store', default=default_cfg_dir+'config.yml',
                        help="Path to a config YAML file (default is 'config.yml')")
     args = parser.parse_args()
 

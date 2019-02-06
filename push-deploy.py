@@ -35,7 +35,7 @@ def deploy(deploy, cfg_file):
 
     log("Writing the following file to S3 to trigger deploy on instances:\n"+latest_deploy)
     client = boto3.client('s3')
-    client.put_object(Bucket=cfg['BUCKET'], Key=cfg['NICKNAME']+'/latest_deploy', Body=latest_deploy)
+    client.put_object(Bucket=cfg['BUCKET'], Key=cfg['NICKNAME']+'/latest-deploy', Body=latest_deploy)
 
     log("Complete, instances will deploy next time pull-deploy.py is run with the --pull flag")
 
@@ -47,12 +47,16 @@ def show(cfg_file):
     print(cfg)
 
 def main():
+    default_cfg_dir = os.path.dirname(__file__)
+    if (default_cfg_dir):
+        default_cfg_dir += '/'
+
     parser = argparse.ArgumentParser(description='Push releases to an S3 bucket')
     parser.add_argument('--show', dest='action', action='store_const', const='show',
                        help='Prints the config')
     parser.add_argument('--deploy', dest='deploy', action='store',
                        help='Runs a push deployment')
-    parser.add_argument('--config', dest='cfg_file', action='store', default=os.path.dirname(__file__)+'/config.yml',
+    parser.add_argument('--config', dest='cfg_file', action='store', default=default_cfg_dir+'config.yml',
                        help="Path to a config YAML file (default is 'config.yml')")
     args = parser.parse_args()
 
