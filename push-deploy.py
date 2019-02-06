@@ -41,6 +41,7 @@ def deploy(deploy, cfg_file):
 
 
 def show(cfg_file):
+    log("Showing config from path: "+cfg_file)
     cfg = load_config.get_config(cfg_file)
 
     print(cfg)
@@ -51,7 +52,7 @@ def main():
                        help='Prints the config')
     parser.add_argument('--deploy', dest='deploy', action='store',
                        help='Runs a push deployment')
-    parser.add_argument('--config', dest='cfg_file', action='store', default='config.yml',
+    parser.add_argument('--config', dest='cfg_file', action='store', default=os.path.dirname(__file__)+'/config.yml',
                        help="Path to a config YAML file (default is 'config.yml')")
     args = parser.parse_args()
 
