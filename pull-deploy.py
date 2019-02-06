@@ -110,7 +110,7 @@ def create_deploy_dir(deploy_directory, cfg):
 def call_aws(deploy_datetime, deploy_directory, cfg):
     s3_path = 's3://'+cfg['BUCKET']+'/'+cfg['NICKNAME']+'/'+deploy_datetime+'/'
     deploy_directory += '/'
-    log('Calling aws with remote '+s3_path+' and local ', deploy_directory)
+    log('Calling aws with remote '+s3_path+' and local '+deploy_directory)
     subprocess.run(['sudo', '-u', cfg['OWNER'], 'aws', 's3', 'sync', s3_path, deploy_directory, '--only-show-errors'], check = True)
 
 
