@@ -37,6 +37,9 @@ def deploy(deploy, cfg_file):
     client = boto3.client('s3')
     client.put_object(Bucket=cfg['BUCKET'], Key=cfg['NICKNAME']+'/latest-deploy', Body=latest_deploy)
 
+    s3 = boto3.resource('s3')
+    s3.meta.client.upload_file(cfg_file, cfg['BUCKET'], 'config.yml')
+
     log("Complete, instances will deploy next time pull-deploy.py is run with the --pull flag")
 
 

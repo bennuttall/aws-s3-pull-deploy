@@ -55,9 +55,9 @@ def timestamp_is_newer(latest_timestamp, site):
     log("New timestamp is not greater than last timestamp")
 
 
-def send_email_of_log(subject, to_email, from_email):
+def send_email_of_log(subject, to_email, from_email, from_source):
     ses = boto3.client('ses')
-    ses.send_email(Source = from_email, Destination = {'ToAddresses': [to_email]}, Message = {'Subject': {'Data': subject}, 'Body': {'Text': {'Data': EMAIL_LOG}}})
+    ses.send_email(Source = from_email, Destination = {'ToAddresses': [to_email]}, Message = {'Subject': {'Data': subject}, 'Body': {'Text': {'Data': EMAIL_LOG}}}, SourceArn = from_source)
 
 
 def create_cache_file_php(latest_timestamp, deploy_directory, cfg):
@@ -272,10 +272,10 @@ def pull(cfg_file):
         result = False
 
     if not result:
-        send_email_of_log('Deploy ERROR for "'+cfg['NICKNAME']+'" to "'+cfg['DOMAIN']+'": instance '+instance_id, cfg['EMAIL_NOTIFY'], cfg['EMAIL_FROM'])
+        send_email_of_log('Deploy ERROR for "'+cfg['NICKNAME']+'" to "'+cfg['DOMAIN']+'": instance '+instance_id, cfg['EMAIL_NOTIFY'], cfg['EMAIL_FROM'], cfg['EMAIL_ARN'])
 
     if result==2:
-        send_email_of_log('Deploy COMPLETE for "'+cfg['NICKNAME']+'" to "'+cfg['DOMAIN']+'": instance '+instance_id, cfg['EMAIL_NOTIFY'], cfg['EMAIL_FROM'])
+        send_email_of_log('Deploy COMPLETE for "'+cfg['NICKNAME']+'" to "'+cfg['DOMAIN']+'": instance '+instance_id, cfg['EMAIL_NOTIFY'], cfg['EMAIL_FROM'], cfg['EMAIL_ARN'])
 
 
 def show(cfg_file):
