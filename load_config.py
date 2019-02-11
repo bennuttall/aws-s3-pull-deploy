@@ -23,11 +23,11 @@ def get_config(cfg_file):
     if (not cfg.get('DOMAIN')):
         cfg_errors.append("The 'DOMAIN' config item must be set to the domain name this site will be hosted at")
 
-    if (not cfg.get('EMAIL_NOTIFY')):
-        cfg_errors.append("The 'EMAIL_NOTIFY' config item must be set to an email address to notify on success or failed deployment")
+    if (not cfg.get('SNS_SUCCESS')):
+        cfg_errors.append("The 'SNS_SUCCESS' config item must be set to an SNS topic identifier (ARN)")
 
-    if (not cfg.get('EMAIL_FROM')):
-        cfg_errors.append("The 'EMAIL_FROM' config item must be set to an email address you are authorised to send from via SES")
+    if (not cfg.get('SNS_ERROR')):
+        cfg_errors.append("The 'SNS_ERROR' config item must be set to an SNS topic identifier (ARN)")
 
     if (not cfg.get('OWNER')):
         cfg_errors.append("The 'OWNER' config item must be set to the name of the user/group to own created files")
