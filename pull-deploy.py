@@ -254,6 +254,11 @@ def run(instance_id, cfg):
     return 2
 
 
+def send_sns_log(short, arn):
+    client = boto3.client('sns')
+    client.publish(TopicArn=arn, Message=EMAIL_LOG, Subject=message)
+
+
 def pull(cfg_file):
     cfg = load_config.get_config(cfg_file)
 
@@ -272,10 +277,10 @@ def pull(cfg_file):
         result = False
 
     if not result:
-        send_email_of_log('Deploy ERROR for "'+cfg['NICKNAME']+'" to "'+cfg['DOMAIN']+'": instance '+instance_id, cfg['EMAIL_NOTIFY'], cfg['EMAIL_FROM'], cfg['EMAIL_ARN'])
+        send_sns_log('Deploy ERROR for "'+cfg['NICKNAME']+'" to "'+cfg['DOMAIN']+'": instance '+instance_id, cfg['SNS_ERROR'])
 
     if result==2:
-        send_email_of_log('Deploy COMPLETE for "'+cfg['NICKNAME']+'" to "'+cfg['DOMAIN']+'": instance '+instance_id, cfg['EMAIL_NOTIFY'], cfg['EMAIL_FROM'], cfg['EMAIL_ARN'])
+        send_sns_log('Deploy COMPLETE for "'+cfg['NICKNAME']+'" to "'+cfg['DOMAIN']+'": instance '+instance_id, cfg['SNS_ERROR'])
 
 
 def show(cfg_file):
