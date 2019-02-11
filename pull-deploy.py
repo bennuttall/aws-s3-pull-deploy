@@ -254,7 +254,7 @@ def run(instance_id, cfg):
     return 2
 
 
-def send_sns_log(short, arn):
+def send_sns_log(message, arn):
     client = boto3.client('sns')
     client.publish(TopicArn=arn, Message=EMAIL_LOG, Subject=message)
 
