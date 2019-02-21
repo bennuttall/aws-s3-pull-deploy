@@ -9,6 +9,8 @@ All files require Python 3 and the `boto3` library which can be installed from p
 
 Both use the same config, `config.yml`. You can see an example of this at `config.sample.yml`. Some options are server or client-side only and a few are used by both.
 
+Start using the sample config with `cp config.sample.yml config.yml`
+
 It is recommended for a production site to run the pull deployment process once per minute. Please note that in the event of a failure where the files do not exist or the lock is not removed manual intervention may be necessary. It is recommended to have shell access to boxes where this runs. For security the best way to handle this on AWS is using AWS Systems Manager remote sessions. This avoids the need for SSH access to be provisioned on the boxes.
 
 ### Example code for user data
