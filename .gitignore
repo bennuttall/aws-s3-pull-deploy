@@ -1,2 +1,6 @@
 config.yml
 __pycache__/
+*.pyc
+s3pd.egg-info/
+build/
+dist/

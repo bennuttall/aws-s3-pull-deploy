@@ -10,7 +10,7 @@ import shutil
 import sys
 import argparse
 
-import load_config
+from .load_config import get_config
 
 def log(msg):
     now = datetime.datetime.now()
@@ -20,7 +20,7 @@ def log(msg):
 
 
 def deploy(deploy, cfg_file):
-    cfg = load_config.get_config(cfg_file)
+    cfg = get_config(cfg_file)
 
     date_string = datetime.datetime.today().strftime("%Y-%m-%d_%H-%M-%S")
     timestamp = int(time.time())
@@ -45,7 +45,7 @@ def deploy(deploy, cfg_file):
 
 def show(cfg_file):
     log("Showing config from path: "+cfg_file)
-    cfg = load_config.get_config(cfg_file)
+    cfg = get_config(cfg_file)
 
     print(cfg)
 

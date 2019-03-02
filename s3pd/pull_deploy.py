@@ -11,7 +11,7 @@ import sys
 import yaml
 import argparse
 
-import load_config
+from .load_config import get_config
 
 # These seem fair to set as globals; they could be put into the config file
 # as new options with a default override for backwards compatibility
@@ -260,7 +260,7 @@ def send_sns_log(message, arn):
 
 
 def pull(cfg_file):
-    cfg = load_config.get_config(cfg_file)
+    cfg = get_config(cfg_file)
 
     response = requests.get('http://169.254.169.254/latest/meta-data/instance-id')
     instance_id = response.text
@@ -285,7 +285,7 @@ def pull(cfg_file):
 
 def show(cfg_file):
     log("Showing config from path: "+cfg_file)
-    cfg = load_config.get_config(cfg_file)
+    cfg = get_config(cfg_file)
 
     print(cfg)
 
